@@ -10,7 +10,7 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.top = Peashooter_rect[1] + 13
         self.width = backgd_size[0]
         self.speed = 4
-        self.attack = 50
+        self.attack = 25
 
     def update(self, *args, **kwargs) -> None:
         if self.rect.right < self.width:

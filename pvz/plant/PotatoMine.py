@@ -4,39 +4,41 @@ import pygame
 class PotatoMine(pygame.sprite.Sprite):
     def __init__(self, rect):
         super(PotatoMine, self).__init__()
-        # --- Image Loading (No changes here) ---
+        # 加载图片
         self.image = pygame.image.load("..\pvz\png\PotatoMine\PotatoMineInit\PotatoMineInit_0.png").convert_alpha()
         self.explode_image = pygame.image.load("..\pvz\png\PotatoMine\PotatoMineExplode\PotatoMineExplode_0.png").convert_alpha()
         self.images = [pygame.image.load("..\pvz\png\PotatoMine\PotatoMine\PotatoMine_{:0d}.png".format(i)).convert_alpha() for i in
                        range(0, 8)]
         
-        # --- Attribute Initialization ---
+        # rect设置(大小位置)
         self.rect = self.image.get_rect()
         self.rect.left = rect[0]
         self.rect.top = rect[1]
-
-        self.pre = 0
-        self.pre_time = 80  # Arming time
-        self.pred = False   # Flag to check if armed
         
-        # --- State Flags ---
-        self.boom = False      # Trigger for explosion
-        self.booming = False   # NEW: State flag for the explosion animation itself
+        # 伤害
+        self.attack = 100
+
+        # pre:已经准备的时间 pre_time:需要准备的时间 pred:是否准备完成
+        self.pre = 0
+        self.pre_time = 80  
+        self.pred = False  
+        
+        # boom:是否爆炸 booming:爆炸是否开始
+        self.boom = False      
+        self.booming = False   
         
         self.energy = 60
         self.zombies = set()
 
     def update(self, *args):
-        # If the explosion has started, kill the sprite on the next frame.
-        # This allows the explosion image to be drawn for one frame.
         if self.booming:
             self.kill()
             return
 
-        # State 1: Arming phase
+        # 准备阶段
         if self.pre <= self.pre_time:
             self.pre += 1
-            # Your energy/zombie logic for the arming phase
+            # 僵尸啃食土豆地雷
             for zombie in self.zombies:
                 if not zombie.Alive:
                     self.energy += 0
@@ -47,15 +49,15 @@ class PotatoMine(pygame.sprite.Sprite):
                     zombie.GOGO = False
                 self.kill()
         
-        # State 2: Armed and waiting
+        # 准备完成
         else:
-            self.pred = True  # The mine is now officially armed
+            self.pred = True  
             
-            # If an external event (like a zombie collision) sets self.boom to True
+            # boom==True说明土豆地雷已经触碰到僵尸,将booming设为true,便于下一帧渲染爆炸图片
             if self.boom:
                 self.image = self.explode_image
-                self.booming = True  # Set the booming state to true
-                # NOTE: The actual damage to zombies should be applied here.
+                self.booming = True  
+                
             else:
-                # If not booming, continue the normal armed animation
+                
                 self.image = self.images[args[0] % len(self.images)]

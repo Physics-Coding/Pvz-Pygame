@@ -8,6 +8,7 @@ from plant.JXC import JXC
 from plant.Bullet import Bullet
 from plant.Bullet_jxc import Bullet_jxc
 from plant.PotatoMine import PotatoMine
+from plant.CherryBomb import CherryBomb
 from level.level_settings import game_level_general
 import random
 
@@ -24,12 +25,17 @@ wallNutImg = pygame.image.load("../pvz/png/Wallnut/Wallnut_00.png").convert_alph
 peaShooterImg = pygame.image.load("../pvz/png/Peashooter/Peashooter00.png").convert_alpha()
 jxcImg = pygame.image.load("../pvz/png/jxc/JXC00.png").convert_alpha()
 potatomineImg = pygame.image.load("../pvz/png/potatomine/PotatoMine/PotatoMine_0.png").convert_alpha()
+cherrybombImg = pygame.image.load("../pvz/png/CherryBomb/CherryBomb_0.png")
 sunbackImg = pygame.transform.scale(pygame.image.load("../pvz/png/SeedBank02.png").convert_alpha(),(596,70))
 sunflower_seed = pygame.image.load("../pvz/png/SunFlower_kp.png")
 wallnut_seed = pygame.image.load("../pvz/png/Wallnut_kp.png")
 peashooter_seed = pygame.image.load("../pvz/png/Peashooter_kp.png")
 jxc_seed = pygame.image.load("../pvz/png/jxc_kp.png")
 potatomine_seed = pygame.transform.scale(pygame.image.load("../pvz/png/PotatoMine_kp.png"),(42,58))
+CherryBomb_seed = pygame.transform.scale(pygame.image.load("../pvz/png/Cherrybomb_kp.png"),(42,58))
+shovel_Box = pygame.image.load("../pvz/png/screen/shovelBox.png")
+shovel = pygame.image.load("../pvz/png/screen/shovel.png")
+
 # 结算图片
 victory = pygame.image.load("../pvz/png/screen/GameVictory.png").convert_alpha()
 lose = pygame.image.load("../pvz/png/screen/GameLose.jpg").convert_alpha()
@@ -197,7 +203,7 @@ def single_game_loop(level_settings:dict=None):
     zombie_num = 0
     game_res = -1
     # text为阳光值
-    text = "100"
+    text = "200"
     sun_font = pygame.font.SysFont("黑体", 25)
     sun_num_surface = sun_font.render(str(text), True, (0, 0, 0))
     # 定义植物组，子弹组，僵尸组，阳光组
@@ -252,10 +258,14 @@ def single_game_loop(level_settings:dict=None):
         screen.blit(sunbackImg, (20, 0.5))
         screen.blit(sun_num_surface, (45, 50))
         screen.blit(sunflower_seed, (95, 5))
-        screen.blit(peashooter_seed, (135, 5))
-        screen.blit(wallnut_seed, (175, 5))
-        screen.blit(jxc_seed, (215, 5))
-        screen.blit(potatomine_seed, (255,5))
+        screen.blit(peashooter_seed, (136, 5))
+        screen.blit(wallnut_seed, (177, 5))
+        screen.blit(jxc_seed, (218, 5))
+        screen.blit(potatomine_seed, (259,5))
+        screen.blit(CherryBomb_seed, (301,5))
+        # 绘制铲子框 铲子
+        screen.blit(shovel_Box, (680,0))
+        screen.blit(shovel, (680,0))
         screen.blit(level_surface, level_rect)
         screen.blit(zombie_surface, zombie_rect)
         spriteGroup.update(index)
@@ -285,9 +295,15 @@ def single_game_loop(level_settings:dict=None):
                             sprite.boom = True
                             for zombie_ in zombieGroup:
                                 if abs(zombie_.rect.top - sprite.rect[1]) <=80 and abs(zombie_.rect.left - sprite.rect[0]) < 80:
-                                    zombie_.energy -= 100 # 僵尸血量
+                                    zombie_.energy -= sprite.attack # 僵尸血量
 
-
+                # 樱桃炸弹逻辑
+                if isinstance(sprite, CherryBomb):
+                    if sprite.booming == True:
+                        for zombie in zombieGroup:
+                            if abs(zombie.rect.top - sprite.rect[1]) <= 180 and abs(zombie.rect.left - sprite.rect[0]) < 180:
+                                zombie.energy -= sprite.attack
+                
                 for zombie in zombieGroup:
                     if pygame.sprite.collide_mask(sprite, zombie):
                         zombie.GOGO = True
@@ -313,7 +329,11 @@ def single_game_loop(level_settings:dict=None):
                 screen.blit(jxcImg, (x - jxcImg.get_rect().width // 2, y - jxcImg.get_rect().height // 2))
             if choose == 5:
                 screen.blit(potatomineImg, (x - potatomineImg.get_rect().width // 2,y - potatomineImg.get_rect().height //2))
-                
+            if choose == 6:
+                screen.blit(cherrybombImg, (x - cherrybombImg.get_rect().width // 2, y - cherrybombImg.get_rect().height // 2)) 
+            if choose == 7:
+                screen.blit(shovel, (x - shovel.get_rect().width // 2, y - shovel.get_rect().height // 2))
+            
             # 生成随机阳光 僵尸 向日葵阳光 子弹
             index += 1
             for event in pygame.event.get():
@@ -350,23 +370,27 @@ def single_game_loop(level_settings:dict=None):
                     if pressed_key[0]:
                         pos = pygame.mouse.get_pos()
                         x, y = pos
-                        if 80 <= x < 121 and 5 <= y <= 63 and int(text) >= 50:
+                        if 82 <= x < 123 and 5 <= y <= 63 and int(text) >= 50:
                             choose = 1
-                        elif 121 <= x < 162 and 5 <= y <= 63 and int(text) >= 100:
+                        elif 123 <= x < 164 and 5 <= y <= 63 and int(text) >= 100:
                             choose = 2
-                        elif 162 <= x < 203 and 5 <= y <= 63 and int(text) >= 50:
+                        elif 164 <= x < 205 and 5 <= y <= 63 and int(text) >= 50:
                             choose = 3
-                        elif 203 <= x < 244 and 5 <= y <= 63 and int(text) >= 100:
+                        elif 205 <= x < 246 and 5 <= y <= 63 and int(text) >= 100:
                             choose = 4
-                        elif 244 <= x < 285 and 5 <= y <= 63 and int(text) >= 25:
+                        elif 246 <= x < 287 and 5 <= y <= 63 and int(text) >= 25:
                             choose = 5
+                        elif 287 <= x < 328 and 5 <= y <= 63 and int (text) >= 125:
+                            choose = 6
+                        elif 675 <= x <= 740 and 0 <= y <=70:
+                            choose = 7 
                         elif 36 < x < 800 and 70 < y < 550:
                             if choose == 1:
                                 trueX = x // 90 * 85 + 35
                                 trueY = y // 100 * 95 - 15
                                 canHold = True
                                 for sprite in spriteGroup:
-                                    if sprite.rect.left == trueX and sprite.rect.top == trueY:
+                                    if abs(sprite.rect.left-trueX) <= 40 and abs(sprite.rect.top - trueY) <= 40:
                                         canHold = False
                                         break
                                 if not canHold or trueY < 25:
@@ -383,7 +407,7 @@ def single_game_loop(level_settings:dict=None):
                                 trueY = y // 100 * 95 - 18
                                 canHold = True
                                 for sprite in spriteGroup:
-                                    if sprite.rect.left == trueX and sprite.rect.top == trueY:
+                                    if abs(sprite.rect.left-trueX) <= 40 and abs(sprite.rect.top - trueY) <= 40:
                                         canHold = False
                                         break
                                 if not canHold or trueY < 25:
@@ -400,7 +424,7 @@ def single_game_loop(level_settings:dict=None):
                                 trueY = y // 100 * 95 - 15
                                 canHold = True
                                 for sprite in spriteGroup:
-                                    if sprite.rect.left == trueX and sprite.rect.top == trueY:
+                                    if abs(sprite.rect.left-trueX) <= 40 and abs(sprite.rect.top - trueY) <= 40:
                                         canHold = False
                                         break
                                 if not canHold or trueY < 25:
@@ -417,7 +441,7 @@ def single_game_loop(level_settings:dict=None):
                                 trueY = y // 100 * 95 - 35
                                 canHold = True
                                 for sprite in spriteGroup:
-                                    if sprite.rect.left == trueX and sprite.rect.top == trueY:
+                                    if abs(sprite.rect.left-trueX) <= 40 and abs(sprite.rect.top - trueY) <= 40:
                                         canHold = False
                                         break
                                 if not canHold or trueY < 25:
@@ -434,7 +458,7 @@ def single_game_loop(level_settings:dict=None):
                                 trueY = y //100 * 95
                                 canHold = True
                                 for sprite in spriteGroup:
-                                    if sprite.rect.left == trueX and sprite.rect.top == trueY:
+                                    if abs(sprite.rect.left-trueX) <= 40 and abs(sprite.rect.top - trueY) <= 40:
                                         canHold = False
                                         break
                                 if not canHold or trueY < 25:
@@ -446,6 +470,28 @@ def single_game_loop(level_settings:dict=None):
                                 text -= 25
                                 myfont = pygame.font.SysFont("黑体", 25)
                                 sun_num_surface = myfont.render(str(text), True, (0, 0, 0))
+                            if choose == 6:
+                                trueX = x //90 * 85 + 30
+                                trueY = y //100 * 95
+                                canHold = True
+                                for sprite in spriteGroup:
+                                    if abs(sprite.rect.left-trueX) <= 40 and abs(sprite.rect.top - trueY) <= 40:
+                                        canHold = False
+                                        break
+                                if not canHold or trueY < 25:
+                                    break
+                                cherrybomb = CherryBomb((trueX,trueY))
+                                cherrybomb.boom = True
+                                spriteGroup.add(cherrybomb)
+                                choose = 0
+                                text = int(text)
+                                text -= 125
+                                myfont = pygame.font.SysFont("黑体", 25)
+                                sun_num_surface = myfont.render(str(text), True, (0, 0, 0))
+                            if choose == 7:
+                                for sprite in spriteGroup:
+                                    if abs(sprite.rect.left-x) <= 50 and abs(sprite.rect.top - y) <= 50:
+                                        sprite.kill()
                         for sun in sunsprite:
                             if sun.rect.collidepoint(pos):
                                 sunsprite.remove(sun)
@@ -484,7 +530,6 @@ def single_game_loop(level_settings:dict=None):
     
             
     
-    pass
 
 def game(levels_num=4, level_settings_general:dict=None):
     """
@@ -503,4 +548,4 @@ def game(levels_num=4, level_settings_general:dict=None):
 
 if __name__ == '__main__':
     game_menu()
-    game(levels_num=4, level_settings_general=game_level_general)
+    game(levels_num=5, level_settings_general=game_level_general)
