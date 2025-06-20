@@ -498,6 +498,8 @@ def single_game_loop(level_settings:dict=None):
                                 text = str(int(text) + 25)
                                 sun_font = pygame.font.SysFont("黑体", 25)
                                 sun_num_surface = sun_font.render(str(text), True, (0, 0, 0))
+                    elif pressed_key[2]:
+                        choose = 0
                 for zombie in zombieGroup:
                     if zombie.rect.left <= 0:
                         print("你的脑子被僵尸吃了")
