@@ -383,7 +383,7 @@ def single_game_loop(level_settings:dict=None):
                         elif 287 <= x < 328 and 5 <= y <= 63 and int (text) >= 125:
                             choose = 6
                         elif 675 <= x <= 740 and 0 <= y <=70:
-                            choose = 7 
+                            choose = 7
                         elif 36 < x < 800 and 70 < y < 550:
                             if choose == 1:
                                 trueX = x // 90 * 85 + 35
@@ -489,8 +489,10 @@ def single_game_loop(level_settings:dict=None):
                                 myfont = pygame.font.SysFont("黑体", 25)
                                 sun_num_surface = myfont.render(str(text), True, (0, 0, 0))
                             if choose == 7:
+                                trueX = x 
+                                trueY = y - 20
                                 for sprite in spriteGroup:
-                                    if abs(sprite.rect.left-x) <= 50 and abs(sprite.rect.top - y) <= 50:
+                                    if abs(sprite.rect.left-trueX) <= 40 and abs(sprite.rect.top - trueY) <= 40:
                                         sprite.kill()
                         for sun in sunsprite:
                             if sun.rect.collidepoint(pos):
